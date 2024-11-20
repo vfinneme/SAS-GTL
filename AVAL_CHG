@@ -1,0 +1,57 @@
+proc template;
+
+    define statgraph AVAL_CHG;
+        dynamic PLOT1_VISITS PLOT1_YVAL PLOT1_XVAL PLOT1_MIN PLOT1_MAX
+                PLOT2_YVAL PLOT_GROUPS PLOT_UNIT 
+                TICK_DISP_LIST TICK_VALUE_LIST;
+        begingraph / datacolors = (&CLRSCALE) datacontrastcolors = (&CLRSCALE_CON.);
+            layout lattice / rows = 1 columns = 2 rowgutter = 0 columngutter = 2 columnweights = (0.66 0.34);
+                
+                /*** Standard plot ***/
+                layout overlay / xaxisopts=(linearopts=( viewmin = PLOT1_MIN viewmax = PLOT1_MAX 
+                                                         tickvaluelist=TICK_VALUE_LIST tickdisplaylist=TICK_DISP_LIST
+                                                       ) 
+                                            display=(LINE TICKVALUES)
+                                           ) 
+                                 yaxisopts=(label = PLOT_UNIT labelattrs=(size = 8pt) labelposition = TOP);
+
+                    scatterplot y=PLOT1_YVAL x= PLOT1_XVAL  / group = PLOT_GROUPS jitter = AUTO
+                                                              groupdisplay = CLUSTER grouporder = ASCENDING clusterwidth = 0.75
+                                                              markerattrs=(size = 4 symbol = CIRCLEFILLED)
+                                                              datatransparency = 0.3
+                                                              ;
+                    boxplot     y=PLOT1_YVAL x = PLOT1_XVAL / group = PLOT_GROUPS  
+                                                              groupdisplay = CLUSTER grouporder = ASCENDING clusterwidth = 0.75  
+                                                              display=(CAPS FILL MEDIAN)
+                                                              fillattrs=(transparency = 0.6) boxwidth = 0.75
+                                                              ; 
+                endlayout;
+
+                /*** Change from Baseline Plot ***/
+                layout overlay / xaxisopts=(label=("Change") 
+                                            tickvalueattrs=(size = 0 color = white) 
+                                            display=(LINE LABEL)
+                                            ) 
+                                 y2axisopts=(display=(LINE TICKS TICKVALUES));
+
+                    scatterplot y=PLOT2_YVAL x= PLOT_GROUPS / group = PLOT_GROUPS jitter = AUTO jitteropts=(axis = x uniform = FALSE width = 1) 
+                                                              clusterwidth = 1
+                                                              markerattrs=(size = 5 symbol = CIRCLEFILLED)
+                                                              datatransparency = 0.3 
+                                                              yaxis = y2
+                                                              ;
+                    boxplot     y=PLOT2_YVAL x=PLOT_GROUPS /  group = PLOT_GROUPS 
+                                                              display=(CAPS FILL MEDIAN)
+                                                              fillattrs=(transparency = 0.6)
+                                                              boxwidth = 0.8 
+                                                              yaxis=y2
+                                                              ;
+                    referenceline y=0                      /  lineattrs=(color= BLACK pattern= SHORTDASH thickness=2)
+                                                              yaxis=y2
+                                                              ;
+
+                endlayout;
+            endlayout;
+        endgraph;
+    end;
+run;
